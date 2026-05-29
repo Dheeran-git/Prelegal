@@ -29,9 +29,15 @@ function partyFieldset(label: string): HTMLElement {
 }
 
 describe("NdaForm", () => {
-  it("renders all four section headings", () => {
+  it("renders all five section headings", () => {
     render(<Host />);
-    for (const name of ["The Basics", "Duration", "Governing Law", "The Parties"]) {
+    for (const name of [
+      "The Basics",
+      "Duration",
+      "Governing Law",
+      "Modifications",
+      "The Parties",
+    ]) {
       expect(screen.getByRole("heading", { name })).toBeInTheDocument();
     }
   });
@@ -106,16 +112,33 @@ describe("NdaForm", () => {
   it("lets the user change the number of years", () => {
     render(<Host />);
     const mndaYears = screen.getAllByLabelText("Number of years")[0];
-    // The input coerces empty -> 1, so set the value directly rather than
-    // clear()-then-type (which would briefly empty and snap back to 1).
     fireEvent.change(mndaYears, { target: { value: "5" } });
     expect(mndaYears).toHaveValue(5);
   });
 
-  it("coerces an emptied year field back to a minimum of 1", () => {
+  it("allows the field to be emptied while editing, then coerces to 1 on blur", () => {
     render(<Host />);
     const mndaYears = screen.getAllByLabelText("Number of years")[0];
     fireEvent.change(mndaYears, { target: { value: "" } });
+    expect(mndaYears).toHaveValue(null); // empty while editing
+    fireEvent.blur(mndaYears);
     expect(mndaYears).toHaveValue(1);
+  });
+
+  it("clamps fractional and out-of-range year entries", () => {
+    render(<Host />);
+    const mndaYears = screen.getAllByLabelText("Number of years")[0];
+    fireEvent.change(mndaYears, { target: { value: "999" } });
+    expect(mndaYears).toHaveValue(99);
+    fireEvent.change(mndaYears, { target: { value: "2.9" } });
+    expect(mndaYears).toHaveValue(2);
+  });
+
+  it("edits the MNDA Modifications field", async () => {
+    const user = userEvent.setup();
+    render(<Host />);
+    const mods = screen.getByPlaceholderText(/Section 5 is amended/i);
+    await user.type(mods, "Section 8 disclaimer removed.");
+    expect(mods).toHaveValue("Section 8 disclaimer removed.");
   });
 });

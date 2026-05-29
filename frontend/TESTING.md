@@ -9,14 +9,14 @@ npm run test         # run once
 npm run test:watch   # watch mode
 ```
 
-The suite (47 tests) covers:
+The suite (59 tests) covers:
 
 | Area | File | What it checks |
 | --- | --- | --- |
-| Pure logic | `src/lib/nda.test.ts` | defaults, `valueOr`, date formatting (incl. timezone safety), term/confidentiality sentences (singular/plural, both variants), the 11 standard-term clauses + governing-law interpolation, `buildNdaFilename` (slugging, truncation, fallbacks), attribution |
-| Live preview | `src/components/NdaPreview.test.tsx` | title/sections render, all 11 clauses, placeholders vs filled values, perpetual / until-terminated variants, attribution |
-| Form | `src/components/NdaForm.test.tsx` | section headings, controlled inputs update, party independence, year inputs enable/disable with radios, empty-year coercion to 1 |
-| Download | `src/components/DownloadButton.test.tsx` | idle render, click generates a blob + triggers download (mocked react-pdf), error state on failure |
+| Pure logic | `src/lib/nda.test.ts` | defaults, `valueOr`, `clampYears` (floor/clamp/NaN), `SIGNATURE_ROWS` order, date formatting (incl. timezone safety), term/confidentiality sentences (singular/plural, both variants), the 11 standard-term clauses + governing-law interpolation, `buildNdaFilename` (slugging, Unicode, truncation, trailing-hyphen, fallbacks), attribution |
+| Live preview | `src/components/NdaPreview.test.tsx` | title/sections render, all 11 clauses, placeholders vs filled values, perpetual / until-terminated variants, signature blocks (Print Name + Date rows), MNDA Modifications, attribution |
+| Form | `src/components/NdaForm.test.tsx` | section headings, controlled inputs update, party independence, year inputs enable/disable with radios, empty-while-editing then blur-coercion, fractional/out-of-range clamping, Modifications field |
+| Download | `src/components/DownloadButton.test.tsx` | idle render, click generates a blob + triggers download (mocked react-pdf), deferred URL revocation, error state on failure |
 
 Also run the production build, which type-checks and lints:
 
@@ -57,12 +57,19 @@ important manual ones.
       *and* clause 9 ("…laws of the State of X… courts located in Y…").
 - [ ] Clearing them restores the `[State]` / `[City or County, State]` placeholders.
 
-### 5. The Parties
+### 5. Modifications
+- [ ] Leaving **MNDA Modifications** empty shows "None." on the cover page.
+- [ ] Typing a modification shows it on the cover page, and the controlling-language
+      note ("…control over conflicting Standard Terms") is present.
+
+### 6. The Parties
 - [ ] Company / Signatory / Title / Notice Address for **Party 1** and **Party 2**
       update their respective signature blocks in the preview.
+- [ ] Each signature block shows rows in order: Signature, Print Name, Title,
+      Company, Notice Address, **Date**.
 - [ ] The two parties are independent (editing one doesn't change the other).
 
-### 6. Download PDF  ← the key manual check
+### 7. Download PDF  ← the key manual check
 - [ ] Click **Download PDF**. Button shows "Preparing…" then a file downloads.
 - [ ] Filename reflects the companies, e.g. `Mutual-NDA-Acme-Inc-and-Globex-LLC.pdf`
       (or `Mutual-NDA.pdf` when no companies are set).
@@ -71,14 +78,14 @@ important manual ones.
 - [ ] PDF text is **selectable** (not an image).
 - [ ] CC BY 4.0 attribution appears in the footer.
 
-### 7. Edge cases
+### 8. Edge cases
 - [ ] Download with everything empty → valid PDF full of placeholders, named
       `Mutual-NDA.pdf`.
 - [ ] Very long company names / punctuation (e.g. "A & B, Inc.") → filename is
       cleanly slugged and truncated; PDF still renders.
 - [ ] Long Purpose text wraps correctly in both preview and PDF.
 
-### 8. Responsive & accessibility (spot check)
+### 9. Responsive & accessibility (spot check)
 - [ ] Narrow the window / mobile width: form and preview stack vertically and
       remain usable.
 - [ ] Tab through the form: all inputs and radios are reachable by keyboard.

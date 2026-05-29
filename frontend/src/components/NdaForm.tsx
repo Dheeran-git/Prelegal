@@ -1,7 +1,13 @@
 "use client";
 
-import { Dispatch, ReactNode, SetStateAction } from "react";
-import type { NdaData, PartyInfo } from "@/lib/nda";
+import {
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useEffect,
+  useState,
+} from "react";
+import { clampYears, type NdaData, type PartyInfo } from "@/lib/nda";
 
 interface NdaFormProps {
   data: NdaData;
@@ -134,6 +140,25 @@ export default function NdaForm({ data, setData }: NdaFormProps) {
 
       <Section
         index="04"
+        title="Modifications"
+        caption="Any changes to the standard terms (optional)."
+      >
+        <Field
+          label="MNDA Modifications"
+          hint="Listed modifications control over the standard terms."
+        >
+          <textarea
+            className="field-input"
+            rows={2}
+            value={data.modifications}
+            onChange={(e) => set("modifications", e.target.value)}
+            placeholder="e.g. Section 5 is amended to…"
+          />
+        </Field>
+      </Section>
+
+      <Section
+        index="05"
         title="The Parties"
         caption="The two companies entering into the agreement."
       >
@@ -289,14 +314,34 @@ function YearInput({
   disabled: boolean;
   onChange: (n: number) => void;
 }) {
+  // Local editing buffer so the field can briefly be empty (or hold a partial
+  // entry) without snapping back to 1 on every keystroke. Committed values are
+  // always coerced to an integer within range via clampYears.
+  const [text, setText] = useState(String(value));
+
+  // Keep the buffer in sync when the value changes from outside this input.
+  useEffect(() => {
+    setText(String(value));
+  }, [value]);
+
   return (
     <input
       type="number"
       min={1}
       max={99}
+      step={1}
       disabled={disabled}
-      value={value}
-      onChange={(e) => onChange(Math.max(1, Number(e.target.value) || 1))}
+      value={text}
+      onChange={(e) => {
+        const raw = e.target.value;
+        setText(raw);
+        if (raw !== "") onChange(clampYears(Number(raw)));
+      }}
+      onBlur={() => {
+        const next = clampYears(Number(text));
+        onChange(next);
+        setText(String(next));
+      }}
       className="w-14 rounded-sm border border-rule bg-white/70 px-1.5 py-0.5 text-center text-sm tabular-nums disabled:opacity-40"
       aria-label="Number of years"
     />

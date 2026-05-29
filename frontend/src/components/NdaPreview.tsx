@@ -1,18 +1,27 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   ATTRIBUTION,
   confidentialityTermText,
   formatEffectiveDate,
   getStandardTerms,
   mndaTermText,
+  MODIFICATIONS_NOTE,
+  PLACEHOLDER,
+  SIGNATURE_ROWS,
   valueOr,
   type NdaData,
   type PartyInfo,
 } from "@/lib/nda";
 
 export default function NdaPreview({ data }: { data: NdaData }) {
-  const terms = getStandardTerms(data);
+  // Only clause 9 depends on user input; memoize so typing in unrelated
+  // fields doesn't rebuild the clause array on every keystroke.
+  const terms = useMemo(
+    () => getStandardTerms(data),
+    [data.governingLaw, data.jurisdiction],
+  );
 
   return (
     <article className="document">
@@ -29,7 +38,7 @@ export default function NdaPreview({ data }: { data: NdaData }) {
         <SectionLabel>Cover Page</SectionLabel>
 
         <DefRow term="Purpose">
-          {valueOr(data.purpose, "[How Confidential Information may be used]")}
+          {valueOr(data.purpose, PLACEHOLDER.purpose)}
         </DefRow>
         <DefRow term="Effective Date">
           {formatEffectiveDate(data.effectiveDate)}
@@ -39,11 +48,17 @@ export default function NdaPreview({ data }: { data: NdaData }) {
           {confidentialityTermText(data)}
         </DefRow>
         <DefRow term="Governing Law">
-          {valueOr(data.governingLaw, "[State]")}
+          {valueOr(data.governingLaw, PLACEHOLDER.governingLaw)}
         </DefRow>
         <DefRow term="Jurisdiction">
-          {valueOr(data.jurisdiction, "[City or County, State]")}
+          {valueOr(data.jurisdiction, PLACEHOLDER.jurisdiction)}
         </DefRow>
+        <DefRow term="MNDA Modifications">
+          {valueOr(data.modifications, "None.")}
+        </DefRow>
+        <p className="!text-left text-xs italic text-muted">
+          {MODIFICATIONS_NOTE}
+        </p>
       </section>
 
       {/* Signatures */}
@@ -116,11 +131,13 @@ function SignatureBlock({
   return (
     <div className="text-xs">
       <p className="eyebrow !mb-2 !text-left text-faint">{label}</p>
-      <SignatureLine value={party.company} caption="Company" />
-      <SignatureLine value="" caption="Signature" />
-      <SignatureLine value={party.name} caption="Print Name" />
-      <SignatureLine value={party.title} caption="Title" />
-      <SignatureLine value={party.noticeAddress} caption="Notice Address" />
+      {SIGNATURE_ROWS.map((row) => (
+        <SignatureLine
+          key={row.caption}
+          value={row.field ? party[row.field] : ""}
+          caption={row.caption}
+        />
+      ))}
     </div>
   );
 }

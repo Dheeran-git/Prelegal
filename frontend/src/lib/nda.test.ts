@@ -2,11 +2,13 @@ import { describe, it, expect } from "vitest";
 import {
   defaultNdaData,
   valueOr,
+  clampYears,
   formatEffectiveDate,
   mndaTermText,
   confidentialityTermText,
   getStandardTerms,
   buildNdaFilename,
+  SIGNATURE_ROWS,
   ATTRIBUTION,
   type NdaData,
   type PartyInfo,
@@ -41,6 +43,50 @@ describe("defaultNdaData", () => {
     // Mutating a derived copy must not leak into the shared default.
     expect(defaultNdaData.party1.company).toBe("");
     expect(copy.party2.company).toBe("");
+  });
+});
+
+describe("clampYears", () => {
+  it("passes through valid integers", () => {
+    expect(clampYears(1)).toBe(1);
+    expect(clampYears(42)).toBe(42);
+  });
+
+  it("floors fractional values", () => {
+    expect(clampYears(1.5)).toBe(1);
+    expect(clampYears(2.9)).toBe(2);
+  });
+
+  it("clamps to the [1, 99] range", () => {
+    expect(clampYears(0)).toBe(1);
+    expect(clampYears(-3)).toBe(1);
+    expect(clampYears(999)).toBe(99);
+  });
+
+  it("falls back to 1 for NaN", () => {
+    expect(clampYears(NaN)).toBe(1);
+    expect(clampYears(Number("not a number"))).toBe(1);
+  });
+});
+
+describe("SIGNATURE_ROWS", () => {
+  it("matches the Common Paper cover-page order with a Date row", () => {
+    expect(SIGNATURE_ROWS.map((r) => r.caption)).toEqual([
+      "Signature",
+      "Print Name",
+      "Title",
+      "Company",
+      "Notice Address",
+      "Date",
+    ]);
+  });
+
+  it("leaves Signature and Date as hand-filled blank rows", () => {
+    const byCaption = (c: string) =>
+      SIGNATURE_ROWS.find((r) => r.caption === c);
+    expect(byCaption("Signature")?.field).toBeUndefined();
+    expect(byCaption("Date")?.field).toBeUndefined();
+    expect(byCaption("Company")?.field).toBe("company");
   });
 });
 
@@ -188,6 +234,20 @@ describe("buildNdaFilename", () => {
     const name = buildNdaFilename(makeData({ party1: { company: long } }));
     // "x" repeated, sliced to 40 chars inside the slug.
     expect(name).toBe(`Mutual-NDA-${"x".repeat(40)}.pdf`);
+  });
+
+  it("preserves Unicode letters in company names", () => {
+    expect(
+      buildNdaFilename(makeData({ party1: { company: "Café Société" } })),
+    ).toBe("Mutual-NDA-Café-Société.pdf");
+  });
+
+  it("never leaves a trailing hyphen after truncation", () => {
+    // The 40th character lands on a space-turned-hyphen.
+    const company = `${"A".repeat(39)} B`;
+    const name = buildNdaFilename(makeData({ party1: { company } }));
+    expect(name.endsWith("-.pdf")).toBe(false);
+    expect(name).toBe(`Mutual-NDA-${"A".repeat(39)}.pdf`);
   });
 
   it("never throws on unusual input", () => {

@@ -67,6 +67,22 @@ describe("NdaPreview", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders signature blocks with Print Name and Date rows for both parties", () => {
+    render(<NdaPreview data={defaultNdaData} />);
+    expect(screen.getAllByText("Print Name")).toHaveLength(2);
+    expect(screen.getAllByText("Date")).toHaveLength(2);
+  });
+
+  it("shows 'None.' for modifications by default and the value when set", () => {
+    const { rerender } = render(<NdaPreview data={defaultNdaData} />);
+    expect(screen.getByText("MNDA Modifications")).toBeInTheDocument();
+    expect(screen.getByText("None.")).toBeInTheDocument();
+    rerender(
+      <NdaPreview data={makeData({ modifications: "Section 8 removed." })} />,
+    );
+    expect(screen.getByText("Section 8 removed.")).toBeInTheDocument();
+  });
+
   it("includes the CC BY 4.0 attribution", () => {
     const { container } = render(<NdaPreview data={defaultNdaData} />);
     expect(within(container).getByText(/CC BY 4\.0/i)).toBeInTheDocument();

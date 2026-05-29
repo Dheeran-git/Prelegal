@@ -40,7 +40,8 @@ describe("DownloadButton", () => {
       expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
       expect(clickSpy).toHaveBeenCalledTimes(1);
     });
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock");
+    // Revocation is deferred (not synchronous) so it can't race the download.
+    expect(URL.revokeObjectURL).not.toHaveBeenCalled();
 
     clickSpy.mockRestore();
   });

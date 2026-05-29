@@ -26,7 +26,10 @@ export default function DownloadButton({ data }: { data: NdaData }) {
       document.body.appendChild(link);
       link.click();
       link.remove();
-      URL.revokeObjectURL(url);
+      // Defer revocation: click() only *schedules* the download, so revoking
+      // the blob URL synchronously can race the browser's fetch of it (failed
+      // or zero-byte downloads on Firefox/Safari). Release it on a later tick.
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
     } catch (err) {
       console.error("Failed to generate PDF", err);
       setError(true);

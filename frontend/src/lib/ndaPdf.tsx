@@ -18,13 +18,16 @@ import {
   formatEffectiveDate,
   getStandardTerms,
   mndaTermText,
+  MODIFICATIONS_NOTE,
+  PLACEHOLDER,
+  SIGNATURE_ROWS,
   valueOr,
   type NdaData,
   type PartyInfo,
 } from "@/lib/nda";
 
 const INK = "#211b16";
-const MUTED = "#564b3e";
+const MUTED = "#6f6353";
 const FAINT = "#8a7d6a";
 const OXBLOOD = "#8a2f1d";
 const RULE = "#cdbfa6";
@@ -137,11 +140,13 @@ function SignatureColumn({
   return (
     <View style={styles.sigCol}>
       <Text style={[styles.eyebrow, { marginBottom: 6 }]}>{label}</Text>
-      <SignatureLine value={party.company} caption="Company" />
-      <SignatureLine value="" caption="Signature" />
-      <SignatureLine value={party.name} caption="Print Name" />
-      <SignatureLine value={party.title} caption="Title" />
-      <SignatureLine value={party.noticeAddress} caption="Notice Address" />
+      {SIGNATURE_ROWS.map((row) => (
+        <SignatureLine
+          key={row.caption}
+          value={row.field ? party[row.field] : ""}
+          caption={row.caption}
+        />
+      ))}
     </View>
   );
 }
@@ -166,10 +171,7 @@ export function NdaPdfDocument({ data }: { data: NdaData }) {
           <Text style={styles.sectionLabel}>Cover Page</Text>
           <DefRow
             term="Purpose"
-            value={valueOr(
-              data.purpose,
-              "[How Confidential Information may be used]",
-            )}
+            value={valueOr(data.purpose, PLACEHOLDER.purpose)}
           />
           <DefRow
             term="Effective Date"
@@ -182,12 +184,17 @@ export function NdaPdfDocument({ data }: { data: NdaData }) {
           />
           <DefRow
             term="Governing Law"
-            value={valueOr(data.governingLaw, "[State]")}
+            value={valueOr(data.governingLaw, PLACEHOLDER.governingLaw)}
           />
           <DefRow
             term="Jurisdiction"
-            value={valueOr(data.jurisdiction, "[City or County, State]")}
+            value={valueOr(data.jurisdiction, PLACEHOLDER.jurisdiction)}
           />
+          <DefRow
+            term="MNDA Modifications"
+            value={valueOr(data.modifications, "None.")}
+          />
+          <Text style={styles.note}>{MODIFICATIONS_NOTE}</Text>
         </View>
 
         <View style={styles.section}>
