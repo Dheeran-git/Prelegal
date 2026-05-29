@@ -1,21 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { NdaData } from "@/lib/nda";
-
-function buildFilename(data: NdaData): string {
-  const slug = (s: string) =>
-    s
-      .trim()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .slice(0, 40);
-
-  const a = slug(data.party1.company);
-  const b = slug(data.party2.company);
-  const parties = [a, b].filter(Boolean).join("-and-");
-  return parties ? `Mutual-NDA-${parties}.pdf` : "Mutual-NDA.pdf";
-}
+import { buildNdaFilename, type NdaData } from "@/lib/nda";
 
 export default function DownloadButton({ data }: { data: NdaData }) {
   const [busy, setBusy] = useState(false);
@@ -36,7 +22,7 @@ export default function DownloadButton({ data }: { data: NdaData }) {
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = buildFilename(data);
+      link.download = buildNdaFilename(data);
       document.body.appendChild(link);
       link.click();
       link.remove();

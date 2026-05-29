@@ -35,6 +35,13 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run build` | Production build                     |
 | `npm run start` | Serve the production build           |
 | `npm run lint`  | Lint                                 |
+| `npm run test`  | Run the Vitest suite                 |
+
+## Testing
+
+Unit + component tests run on [Vitest](https://vitest.dev) + React Testing
+Library (`npm run test`). See [`TESTING.md`](./TESTING.md) for the full
+breakdown and a manual QA checklist (the PDF download is verified manually).
 
 ## Structure
 
