@@ -1,0 +1,67 @@
+{
+  "source": "https://github.com/CommonPaper",
+  "license": "CC BY 4.0",
+  "description": "Catalog of legal document templates sourced from Common Paper's public GitHub repositories. Each template is a standardized, openly licensed legal agreement that the Prelegal system can later modify for the user.",
+  "templates": [
+    {
+      "name": "Mutual Non-Disclosure Agreement (Standard Terms)",
+      "description": "Standard terms for a mutual NDA, allowing two parties to share confidential information with each other while keeping it protected.",
+      "filename": "templates/mutual-nda.md"
+    },
+    {
+      "name": "Mutual Non-Disclosure Agreement (Cover Page)",
+      "description": "Fillable cover page for the Mutual NDA, capturing the parties, effective date, and deal-specific variables that accompany the standard terms.",
+      "filename": "templates/mutual-nda-coverpage.md"
+    },
+    {
+      "name": "Cloud Service Agreement",
+      "description": "Standard agreement for selling or purchasing access to a cloud-based software (SaaS) product, covering subscriptions, data, warranties, and liability.",
+      "filename": "templates/cloud-service-agreement.md"
+    },
+    {
+      "name": "Design Partner Agreement",
+      "description": "Agreement between a company and an early design partner to collaborate on developing and giving feedback on a new product or feature.",
+      "filename": "templates/design-partner-agreement.md"
+    },
+    {
+      "name": "Service Level Agreement",
+      "description": "Service Level Agreement defining uptime commitments, support response times, and service credits for a cloud or software service.",
+      "filename": "templates/service-level-agreement.md"
+    },
+    {
+      "name": "Professional Services Agreement",
+      "description": "Agreement governing the provision of professional services, including statements of work, deliverables, fees, and ownership of work product.",
+      "filename": "templates/professional-services-agreement.md"
+    },
+    {
+      "name": "Data Processing Agreement",
+      "description": "Data Processing Agreement addressing how personal data is processed under privacy laws such as GDPR and CCPA, including roles, security, and sub-processors.",
+      "filename": "templates/data-processing-agreement.md"
+    },
+    {
+      "name": "Software License Agreement",
+      "description": "Agreement for licensing on-premise or downloadable software, covering license scope, restrictions, support, warranties, and liability.",
+      "filename": "templates/software-license-agreement.md"
+    },
+    {
+      "name": "Partnership Agreement",
+      "description": "Agreement establishing a business partnership between two companies to collaborate, refer, or resell, including roles, responsibilities, and revenue terms.",
+      "filename": "templates/partnership-agreement.md"
+    },
+    {
+      "name": "Pilot Agreement",
+      "description": "Agreement for running a time-limited pilot or proof-of-concept of a product or service before a full commercial commitment.",
+      "filename": "templates/pilot-agreement.md"
+    },
+    {
+      "name": "Business Associate Agreement",
+      "description": "HIPAA Business Associate Agreement governing the handling of protected health information (PHI) between a covered entity and a business associate.",
+      "filename": "templates/business-associate-agreement.md"
+    },
+    {
+      "name": "AI Addendum",
+      "description": "Addendum that adds AI-specific terms to an existing agreement, covering use of AI systems, training data, model outputs, and related responsibilities.",
+      "filename": "templates/ai-addendum.md"
+    }
+  ]
+}
